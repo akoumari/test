@@ -14,9 +14,12 @@ const socket = io();
 socket.emit('joinRoom', { username, room });
 
 // Get room and users
-socket.on('roomUsers', ({ room, users }) => {
-  outputRoomName(room);
+socket.on('roomUsers', ({ room, users,chatLog }) => {
+  outputRoomName(users);
   outputUsers(users);
+  users.messageLog.map(message=>{
+    outputMessage(message)
+  })
 });
 
 // Message from server
@@ -55,27 +58,28 @@ function outputMessage(message) {
   div.classList.add('message');
   const p = document.createElement('p');
   p.classList.add('meta');
-  p.innerText = message.username;
-  p.innerHTML += `<span>${message.time}</span>`;
+  p.innerText = message.username?message.username:message.userName;
+  p.innerHTML += `<span>${message.time?message.time:new Date(message.createdAt).toLocaleTimeString()}</span>`;
   div.appendChild(p);
   const para = document.createElement('p');
   para.classList.add('text');
-  para.innerText = message.text;
+  para.innerText = message.text?message.text:message.message;
   div.appendChild(para);
   document.querySelector('.chat-messages').appendChild(div);
 }
 
 // Add room name to DOM
 function outputRoomName(room) {
-  roomName.innerText = room;
+  roomName.innerText = room.roomName;
 }
 
 // Add users to DOM
 function outputUsers(users) {
   userList.innerHTML = '';
-  users.forEach((user) => {
+  console.log(users)
+  users.activeUsers.forEach((user) => {
     const li = document.createElement('li');
-    li.innerText = user.username;
+    li.innerText = user.userName;
     userList.appendChild(li);
   });
 }
